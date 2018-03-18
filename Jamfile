@@ -1,0 +1,13 @@
+SubDir TOP ;
+SubInclude TOP kit ;
+
+MySubDir TOP ;
+
+local NAMES =
+	init.cpp
+	PaintMode.cpp
+;
+
+MyObjects $(NAMES) ;
+
+MyMainFromObjects paint : $(NAMES:S=$(SUFOBJ)) $(KIT_OBJECTS) ;
