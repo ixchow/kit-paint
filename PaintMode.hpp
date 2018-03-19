@@ -33,7 +33,7 @@ struct PaintMode : public kit::Mode {
 		GLuint tex = 0;
 		float radius = 100.0f; //in canvas pixels
 		float interval = 0.2f; //as a factor of brush radius
-		glm::u8vec4 tint = glm::u8vec4(0x00, 0x00, 0x00, 0xff);
+		glm::u8vec4 tint = glm::u8vec4(0xff, 0xff, 0xff, 0xff);
 	} brush;
 
 	//information about current strokes:

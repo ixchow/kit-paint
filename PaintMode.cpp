@@ -114,11 +114,11 @@ PaintMode::PaintMode() {
 				at = 2.0f * (at - 0.5f);
 				float val = std::max(0.0f, 1.0f - glm::length(at));
 				val = 1.0f - (1.0f - val) * (1.0f - val);
-				data[y * size.x + x] = glm::vec4(1.0f, 1.0f, 1.0f, val);
+				data[y * size.x + x] = glm::vec4(0.5f * at + 0.5f, 1.0f, val);
 			}
 		}
 		glBindTexture(GL_TEXTURE_2D, brush.tex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_FLOAT, data.data());
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, size.x, size.y, 0, GL_RGBA, GL_FLOAT, data.data());
 		GL_ERRORS();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -206,6 +206,8 @@ void PaintMode::draw() {
 	glClearColor(0.1, 0.1, 0.1, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	glDisable(GL_BLEND);
+
 	//draw canvas:
 	glUseProgram(texture_program->program);
 
@@ -283,11 +285,12 @@ void PaintMode::draw() {
 void PaintMode::pointer_action(kit::PointerID pointer, kit::PointerAction action, kit::Pointer const &old_state, kit::Pointer const &new_state) {
 	auto f = strokes.find(pointer);
 	if (f != strokes.end()) { //pointer is drawing a stroke
-		f->second.points.emplace_back(display_to_canvas(new_state.at), new_state.pressure);
 		if (action == kit::PointerUp) {
 			//stroke is over
 			splat_strokes();
 			strokes.erase(f);
+		} else {
+			f->second.points.emplace_back(display_to_canvas(new_state.at), new_state.pressure);
 		}
 	} else { //pointer is not drawing a stroke
 		if (action == kit::PointerDown) {
