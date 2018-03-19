@@ -283,7 +283,7 @@ void PaintMode::draw() {
 void PaintMode::pointer_action(kit::PointerID pointer, kit::PointerAction action, kit::Pointer const &old_state, kit::Pointer const &new_state) {
 	auto f = strokes.find(pointer);
 	if (f != strokes.end()) { //pointer is drawing a stroke
-		f->second.points.emplace_back(display_to_canvas(new_state.at), 1.0f);
+		f->second.points.emplace_back(display_to_canvas(new_state.at), new_state.pressure);
 		if (action == kit::PointerUp) {
 			//stroke is over
 			splat_strokes();
@@ -292,7 +292,7 @@ void PaintMode::pointer_action(kit::PointerID pointer, kit::PointerAction action
 	} else { //pointer is not drawing a stroke
 		if (action == kit::PointerDown) {
 			//start a stroke
-			strokes[pointer].points.emplace_back(display_to_canvas(new_state.at), 1.0f);
+			strokes[pointer].points.emplace_back(display_to_canvas(new_state.at), new_state.pressure);
 		}
 	}
 }
@@ -354,11 +354,11 @@ void PaintMode::splat_strokes() {
 			float t = 0.0f;
 			while (stroke.remain + (1.0f - t) * step < 0.0f) {
 				float d = -stroke.remain / step;
-				assert(d > 0.0f);
 				t += d;
 				assert(t <= 1.0001f);
 				float z = glm::mix(a.z, b.z, t);
 				stroke.remain = compute_radius(z) * brush.interval;
+				assert(stroke.remain > 0.0f);
 				splat(glm::mix(glm::vec2(a), glm::vec2(b), t), compute_radius(z), compute_tint(z));
 			}
 			stroke.remain += (1.0f - t) * step;
